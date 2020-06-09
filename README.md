@@ -17,6 +17,119 @@ Each waypoint in the list contains  [x,y,s,dx,dy] values. x and y are the waypoi
 
 The highway's waypoints loop around so the frenet s value, distance along the road, goes from 0 to 6945.554.
 
+### Implementation
+
+#### Prediction
+
+Prediction step is implemented in function
+
+		map<string, VehicleNearby> Predict(const vector<vector<double>> &sensor_fusion, double car_s, int previous_path_size, int lane)
+
+##### Parameter description
+
+sensor_fusion : sensor fusion data including x, y coordinates, freenet coordinates ( s, d) , velocity along x direction: speed, velocity along y direction: yaw
+
+lane : initiating ego vehicle lane as 1
+
+car_s : ego vehicle freenet coordinate s
+
+previous_path_size : size of previous path points
+
+
+First initiate distances as a large number and -1, then comparing distaces with this code (distance from egovehicle to other vehicle)
+
+		check_car_s += ((double) prev_size * 0.02 * check_speed);
+		double dist = check_car_s - car_s;
+
+There are 6 different vehicle distance calculation cases
+
+1. Vehicle ahead
+2. Vehicle behind
+3. Vehicle ahead on right side
+4. Vehicle ahead on left side
+5. Vehicle behind on right side
+6. Vehicle behind on right side
+
+considering all cases, checking each vechicle accoring to their distance to ego vehicle after 0.02 secs
+
+#### Planning
+
+Planning is done by function Plan:
+
+		Egoparams Plan(const map<string, VehicleNearby> &predictions, double target_speed, int lane);
+
+##### Parameter description
+
+predictions: predictions
+
+target_speed: target speed has to be maintained
+
+lane : ego vehicle lane
+
+Target speed is generated acheived by function 
+
+		double Update_target_speed(double ahead_dist, double ahead_speed, double target_speed);
+
+##### Parameter description
+
+ahead_dist: distance to ego vehicle
+
+ahead_speed: vehicle speed 
+
+target_speed : target speed has to be maintained
+
+
+3 planning conditions are considered in this function
+
+###### Keep Lane
+
+When there is no vehicle ahead of ego vehicle, keep the same lane
+
+###### Change to Left Lane
+
+While ego vehicle is not on most left lane and when there is vehicle ahead of ego vehicle
+
+###### Change to Rright Lane
+
+While ego vehicle is not on most right lane and when there is vehicle ahead of ego vehicle
+
+
+##### cost calculation
+
+cost calculation is done by following functions. Calculating speed cose and distance cost separately, total cost is calculated by adding repective weights to each cost.
+
+		double Calculate_cost(double dist_ahead, double dist_behind, double ahead_speed, double my_speed);
+
+		double Calc_distance_cost(double dist);
+
+		double Calc_speed_cost(double ahead_speed, double my_speed);
+
+
+#### Trajectory
+
+		vector<vector<double>> getTrajectory(const EgoVehicle &egovehicle, const EgoParams &egoparams, const MapWayPoints &map_waypoints, const PreviousPath &previous_path)
+
+##### Parameter description
+
+EgoVehicle : ego vehicle's data
+
+EgoParams : ego vehicle attributes
+
+MapWayPoints : way point data x, y, s, dx, dy
+
+PreviousPath : previous path x , y
+
+
+1. x, y points are set using previous points if available
+
+2. convetion using getXY() function (helpers.h) to find global coordinates
+
+3. taking ego vehicle as reference origin(ref_x, ref_y, ref_yaw), converting to vehicle local cordinates.
+
+4. creating a spline using obtained points using spline.h
+
+5. break spline points in order to calculate velocity increament and thus to generate next way point
+
 ## Basic Build Instructions
 
 1. Clone this repo.
