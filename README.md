@@ -36,7 +36,7 @@ car_s : ego vehicle freenet coordinate s
 previous_path_size : size of previous path points
 
 
-First initiate distances as a large number and -1, then comparing distaces with this code (distance from egovehicle to other vehicle)
+First initiate distances as a large number and -1, then comparing distances with this code (distance from egovehicle to other vehicle)
 
 		check_car_s += ((double) prev_size * 0.02 * check_speed);
 		double dist = check_car_s - car_s;
@@ -50,7 +50,7 @@ There are 6 different vehicle distance calculation cases
 5. Vehicle behind on right side
 6. Vehicle behind on right side
 
-considering all cases, checking each vechicle accoring to their distance to ego vehicle after 0.02 secs
+considering all cases, checking each vechicle according to their distance to ego vehicle after 0.02 secs
 
 #### Planning
 
